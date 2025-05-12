@@ -10,13 +10,13 @@ let dx = 0;
 let dy = 0;
 let score = 0;
 let game;
-let initialTouchX = null; // Store initial touch X position
-let initialTouchY = null; // Store initial touch Y position
+let initialTouchX = null;
+let initialTouchY = null;
 
 function randomPosition() {
     return {
         x: Math.floor(Math.random() * (board.width / gridSize)),
-        y: Math.floor(Math.random() * ((board.height - 30) / gridSize)) // Subtract score bar height
+        y: Math.floor(Math.random() * ((board.height - 30) / gridSize))
     };
 }
 
@@ -52,62 +52,56 @@ function changeDirection(event) {
     let newDx = dx;
     let newDy = dy;
 
-    const LEFT = "LEFT";
-    const UP = "UP";
-    const RIGHT = "RIGHT";
-    const DOWN = "DOWN";
-
     const goingUp = dy === -1;
     const goingDown = dy === 1;
     const goingLeft = dx === -1;
     const goingRight = dx === 1;
 
     if (event.type === 'keydown') {
-        const keyPressed = event.keyCode;
         const LEFT_KEY = 37;
         const UP_KEY = 38;
         const RIGHT_KEY = 39;
         const DOWN_KEY = 40;
 
-        if (keyPressed === LEFT_KEY && !goingRight) {
+        if (event.keyCode === LEFT_KEY && !goingRight) {
             newDx = -1;
             newDy = 0;
-        } else if (keyPressed === UP_KEY && !goingDown) {
+        } else if (event.keyCode === UP_KEY && !goingDown) {
             newDx = 0;
             newDy = -1;
-        } else if (keyPressed === RIGHT_KEY && !goingLeft) {
+        } else if (event.keyCode === RIGHT_KEY && !goingLeft) {
             newDx = 1;
             newDy = 0;
-        } else if (keyPressed === DOWN_KEY && !goingUp) {
+        } else if (event.keyCode === DOWN_KEY && !goingUp) {
             newDx = 0;
             newDy = 1;
         }
     } else if (event.type === 'touchstart') {
+        event.preventDefault(); // Prevent default touch behavior (scrolling)
         initialTouchX = event.touches[0].clientX;
         initialTouchY = event.touches[0].clientY;
     } else if (event.type === 'touchend') {
+        event.preventDefault(); // Prevent default touch behavior (scrolling)
         if (initialTouchX === null || initialTouchY === null) return;
 
         const deltaX = event.changedTouches[0].clientX - initialTouchX;
         const deltaY = event.changedTouches[0].clientY - initialTouchY;
 
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // Horizontal swipe
             if (deltaX > 0 && !goingLeft) {
                 newDx = 1;
-                newDy = 0; // Right
+                newDy = 0;
             } else if (deltaX < 0 && !goingRight) {
                 newDx = -1;
-                newDy = 0; // Left
+                newDy = 0;
             }
         } else {
-            // Vertical swipe
             if (deltaY > 0 && !goingUp) {
                 newDx = 0;
-                newDy = 1; // Down
+                newDy = 1;
             } else if (deltaY < 0 && !goingDown) {
                 newDx = 0;
-                newDy = -1; // Up
+                newDy = -1;
             }
         }
 
@@ -125,7 +119,7 @@ function checkCollision() {
     const head = snake[0];
     const body = snake.slice(1);
 
-    if (head.x < 0 || head.x >= board.width / gridSize || head.y < 0 || head.y >= (board.height - 30) / gridSize) { // Subtract score bar height
+    if (head.x < 0 || head.x >= board.width / gridSize || head.y < 0 || head.y >= (board.height - 30) / gridSize) {
         return true;
     }
 
@@ -150,7 +144,7 @@ function gameLoop() {
         ctx.font = '20px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(`Game Over! Score: ${score}`, board.width / 2, board.height / 2);
-        startButton.style.display = 'block'; // Show start button again
+        startButton.style.display = 'block';
         return;
     }
 
@@ -159,7 +153,6 @@ function gameLoop() {
     moveSnake();
     drawSnake();
 
-    // Draw score bar
     ctx.fillStyle = 'white';
     ctx.fillRect(0, board.height - 30, board.width, 30);
     ctx.fillStyle = 'black';
@@ -177,7 +170,7 @@ function startGame() {
     dy = 0;
     score = 0;
     scoreBoard.textContent = 'Score: 0';
-    startButton.style.display = 'none'; // Hide start button during game
+    startButton.style.display = 'none';
     clearBoard();
     drawApple();
     drawSnake();
