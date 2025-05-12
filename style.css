@@ -14,6 +14,7 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative; /* Add relative positioning */
 }
 
 #game-board {
@@ -28,9 +29,17 @@ body {
     margin-bottom: 10px;
 }
 
+#start-screen {
+    position: absolute; /* Position it absolutely */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center it */
+    z-index: 10; /* Ensure it's on top */
+}
+
 #start-button {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 24px; /* Make it bigger */
     background-color: green;
     color: white;
     border: none;
