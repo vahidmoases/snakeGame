@@ -10,6 +10,8 @@ let dx = 0;
 let dy = 0;
 let score = 0;
 let game;
+let initialTouchX = null; // Store initial touch X position
+let initialTouchY = null; // Store initial touch Y position
 
 function randomPosition() {
     return {
@@ -47,35 +49,75 @@ function moveSnake() {
 }
 
 function changeDirection(event) {
-    const LEFT_KEY = 37;
-    const UP_KEY = 38;
-    const RIGHT_KEY = 39;
-    const DOWN_KEY = 40;
+    let newDx = dx;
+    let newDy = dy;
 
-    const keyPressed = event.keyCode;
+    const LEFT = "LEFT";
+    const UP = "UP";
+    const RIGHT = "RIGHT";
+    const DOWN = "DOWN";
+
     const goingUp = dy === -1;
     const goingDown = dy === 1;
     const goingLeft = dx === -1;
     const goingRight = dx === 1;
 
-    if (keyPressed === LEFT_KEY && !goingRight) {
-        dx = -1;
-        dy = 0;
+    if (event.type === 'keydown') {
+        const keyPressed = event.keyCode;
+        const LEFT_KEY = 37;
+        const UP_KEY = 38;
+        const RIGHT_KEY = 39;
+        const DOWN_KEY = 40;
+
+        if (keyPressed === LEFT_KEY && !goingRight) {
+            newDx = -1;
+            newDy = 0;
+        } else if (keyPressed === UP_KEY && !goingDown) {
+            newDx = 0;
+            newDy = -1;
+        } else if (keyPressed === RIGHT_KEY && !goingLeft) {
+            newDx = 1;
+            newDy = 0;
+        } else if (keyPressed === DOWN_KEY && !goingUp) {
+            newDx = 0;
+            newDy = 1;
+        }
+    } else if (event.type === 'touchstart') {
+        initialTouchX = event.touches[0].clientX;
+        initialTouchY = event.touches[0].clientY;
+    } else if (event.type === 'touchend') {
+        if (initialTouchX === null || initialTouchY === null) return;
+
+        const deltaX = event.changedTouches[0].clientX - initialTouchX;
+        const deltaY = event.changedTouches[0].clientY - initialTouchY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // Horizontal swipe
+            if (deltaX > 0 && !goingLeft) {
+                newDx = 1;
+                newDy = 0; // Right
+            } else if (deltaX < 0 && !goingRight) {
+                newDx = -1;
+                newDy = 0; // Left
+            }
+        } else {
+            // Vertical swipe
+            if (deltaY > 0 && !goingUp) {
+                newDx = 0;
+                newDy = 1; // Down
+            } else if (deltaY < 0 && !goingDown) {
+                newDx = 0;
+                newDy = -1; // Up
+            }
+        }
+
+        initialTouchX = null;
+        initialTouchY = null;
     }
 
-    if (keyPressed === UP_KEY && !goingDown) {
-        dx = 0;
-        dy = -1;
-    }
-
-    if (keyPressed === RIGHT_KEY && !goingLeft) {
-        dx = 1;
-        dy = 0;
-    }
-
-    if (keyPressed === DOWN_KEY && !goingUp) {
-        dx = 0;
-        dy = 1;
+    if ((newDx !== dx || newDy !== dy) && (newDx !== -dx || newDy !== -dy)) {
+        dx = newDx;
+        dy = newDy;
     }
 }
 
@@ -143,4 +185,6 @@ function startGame() {
 }
 
 document.addEventListener('keydown', changeDirection);
+board.addEventListener('touchstart', changeDirection, { passive: false });
+board.addEventListener('touchend', changeDirection, { passive: false });
 startButton.addEventListener('click', startGame);
